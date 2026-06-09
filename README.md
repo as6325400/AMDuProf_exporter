@@ -159,12 +159,19 @@ topk(5, sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind="total"}))
 
 ## Grafana
 
-`grafana/host.json` — 單一 host 的記憶體頻寬 dashboard:上方 stat(Up / 總頻寬 /
-Read / Write / snapshot age / restarts),中間總頻寬與 read/write 時序,下面
-Local vs Remote DRAM 堆疊圖,最後是 exporter 健康狀態。
+兩份 dashboard,搭配 drill-down 一起用(多台機器用):
 
-匯入:Grafana UI → Dashboards → New → Import → 選 `grafana/host.json` → 指到你的
-Prometheus datasource。上方 `Host` 下拉可切換機器。
+- **`grafana/cluster.json`** — cluster overview。一張表每台 host 一列
+  (Total BW / Read BW / Write BW / Remote DRAM / Up),**點 Host 那欄就跳到該機器
+  的詳細 dashboard**;上方還有 cluster 級的 stat 與「by host」時序圖。
+- **`grafana/host.json`** — 單一 host 的詳細頁(drill-down 的目標)。有**二級下拉**:
+  `Host`(第一級)→ `Scope`(第二級,跟著 Host 變,可多選 / All)。用 `-a` 時
+  Scope 只有 `system`;用 `-A package` 時會有 `package0` / `package1` 可切。內容:
+  上方 stat、總頻寬與 read/write 時序、Local vs Remote DRAM 堆疊圖、exporter 健康。
+
+匯入順序:**先匯 `host.json`,再匯 `cluster.json`**(cluster 的 Host 連結指到
+host dashboard 的 uid `amduprof-host-memory`,先存在連結才有效)。
+Grafana UI → Dashboards → New → Import → 選檔案 → 指到你的 Prometheus datasource。
 
 ## Scope / 不做什麼
 

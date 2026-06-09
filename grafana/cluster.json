@@ -28,17 +28,17 @@
       "keepTime": true,
       "tags": [],
       "targetBlank": false,
-      "title": "Cluster overview",
-      "tooltip": "Back to the cluster view",
+      "title": "Host detail",
+      "tooltip": "Drill into a single host",
       "type": "link",
-      "url": "/d/amduprof-cluster-overview"
+      "url": "/d/amduprof-host-memory"
     }
   ],
   "liveNow": false,
   "panels": [
     {
       "type": "stat",
-      "title": "Host Up",
+      "title": "Hosts Up",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -46,7 +46,7 @@
       "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 3,
+        "w": 4,
         "h": 4
       },
       "targets": [
@@ -55,7 +55,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "max(amd_uprof_up{instance=\"$instance\"})",
+          "expr": "sum(amd_uprof_up)",
           "refId": "A",
           "instant": true
         }
@@ -64,21 +64,7 @@
         "defaults": {
           "unit": "none",
           "decimals": 0,
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "DOWN",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "UP",
-                  "color": "green"
-                }
-              }
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -112,13 +98,13 @@
     },
     {
       "type": "stat",
-      "title": "Total Mem BW",
+      "title": "Cluster Total Mem BW",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
-        "x": 3,
+        "x": 4,
         "y": 0,
         "w": 5,
         "h": 4
@@ -129,7 +115,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(amd_uprof_mem_bandwidth_gbps{instance=\"$instance\",scope=~\"$scope\",kind=\"total\"})",
+          "expr": "sum(amd_uprof_mem_bandwidth_gbps{kind=\"total\"})",
           "refId": "A",
           "instant": true
         }
@@ -148,11 +134,11 @@
               },
               {
                 "color": "yellow",
-                "value": 200
+                "value": 400
               },
               {
                 "color": "red",
-                "value": 350
+                "value": 700
               }
             ]
           }
@@ -176,13 +162,13 @@
     },
     {
       "type": "stat",
-      "title": "Read BW",
+      "title": "Cluster Read BW",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
-        "x": 8,
+        "x": 9,
         "y": 0,
         "w": 5,
         "h": 4
@@ -193,7 +179,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(amd_uprof_mem_bandwidth_gbps{instance=\"$instance\",scope=~\"$scope\",kind=\"read\"})",
+          "expr": "sum(amd_uprof_mem_bandwidth_gbps{kind=\"read\"})",
           "refId": "A",
           "instant": true
         }
@@ -232,13 +218,13 @@
     },
     {
       "type": "stat",
-      "title": "Write BW",
+      "title": "Cluster Write BW",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
-        "x": 13,
+        "x": 14,
         "y": 0,
         "w": 5,
         "h": 4
@@ -249,7 +235,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(amd_uprof_mem_bandwidth_gbps{instance=\"$instance\",scope=~\"$scope\",kind=\"write\"})",
+          "expr": "sum(amd_uprof_mem_bandwidth_gbps{kind=\"write\"})",
           "refId": "A",
           "instant": true
         }
@@ -288,15 +274,15 @@
     },
     {
       "type": "stat",
-      "title": "Snapshot Age",
+      "title": "Cluster Remote DRAM",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
-        "x": 18,
+        "x": 19,
         "y": 0,
-        "w": 3,
+        "w": 5,
         "h": 4
       },
       "targets": [
@@ -305,14 +291,14 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "max(amd_uprof_snapshot_age_seconds{instance=\"$instance\"})",
+          "expr": "sum(amd_uprof_remote_dram_read_data_bytes_gbps) + sum(amd_uprof_remote_dram_write_data_bytes_gbps)",
           "refId": "A",
           "instant": true
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "unit": "GBs",
           "decimals": 1,
           "mappings": [],
           "thresholds": {
@@ -321,14 +307,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "red",
-                "value": 15
               }
             ]
           }
@@ -351,69 +329,8 @@
       }
     },
     {
-      "type": "stat",
-      "title": "Restarts",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "gridPos": {
-        "x": 21,
-        "y": 0,
-        "w": 3,
-        "h": 4
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "max(amd_uprof_process_restarts_total{instance=\"$instance\"})",
-          "refId": "A",
-          "instant": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto"
-      }
-    },
-    {
-      "type": "row",
-      "title": "Memory bandwidth",
-      "collapsed": false,
+      "type": "table",
+      "title": "Per-host summary (click Host to drill down)",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -422,23 +339,7 @@
         "x": 0,
         "y": 4,
         "w": 24,
-        "h": 1
-      },
-      "panels": []
-    },
-    {
-      "type": "timeseries",
-      "title": "Total Memory Bandwidth",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "scope=system with -a; per-package with -A package",
-      "gridPos": {
-        "x": 0,
-        "y": 5,
-        "w": 12,
-        "h": 8
+        "h": 10
       },
       "targets": [
         {
@@ -446,107 +347,103 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "amd_uprof_mem_bandwidth_gbps{instance=\"$instance\",scope=~\"$scope\",kind=\"total\"}",
+          "expr": "sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind=\"total\"})",
           "refId": "A",
-          "legendFormat": "{{scope}} total"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "GBs",
-          "decimals": 1,
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "axisCenteredZero": false,
-            "spanNulls": true
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Read vs Write Bandwidth",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "",
-      "gridPos": {
-        "x": 12,
-        "y": 5,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "amd_uprof_mem_bandwidth_gbps{instance=\"$instance\",scope=~\"$scope\",kind=\"read\"}",
-          "refId": "A",
-          "legendFormat": "{{scope}} read"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "amd_uprof_mem_bandwidth_gbps{instance=\"$instance\",scope=~\"$scope\",kind=\"write\"}",
+          "expr": "sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind=\"read\"})",
           "refId": "B",
-          "legendFormat": "{{scope}} write"
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind=\"write\"})",
+          "refId": "C",
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance) (amd_uprof_remote_dram_read_data_bytes_gbps) + sum by (instance) (amd_uprof_remote_dram_write_data_bytes_gbps)",
+          "refId": "D",
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (instance) (amd_uprof_up)",
+          "refId": "E",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "instance",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true
+            },
+            "indexByName": {
+              "instance": 0,
+              "Value #A": 1,
+              "Value #B": 2,
+              "Value #C": 3,
+              "Value #D": 4,
+              "Value #E": 5
+            },
+            "renameByName": {
+              "instance": "Host",
+              "Value #A": "Total BW",
+              "Value #B": "Read BW",
+              "Value #C": "Write BW",
+              "Value #D": "Remote DRAM",
+              "Value #E": "Up"
+            }
+          }
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "GBs",
-          "decimals": 1,
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "axisCenteredZero": false,
-            "spanNulls": true
+          "color": {
+            "mode": "thresholds"
           },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -557,43 +454,158 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Host"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open detail for ${__value.raw}",
+                    "url": "/d/amduprof-host-memory?var-instance=${__value.raw}&${__url_time_range}",
+                    "targetBlank": false
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total BW"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "GBs"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Read BW"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "GBs"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Write BW"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "GBs"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Remote DRAM"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "GBs"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Up"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "DOWN",
+                        "color": "red"
+                      },
+                      "1": {
+                        "text": "UP",
+                        "color": "green"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
         }
       }
     },
     {
-      "type": "row",
-      "title": "NUMA / DRAM",
-      "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 13,
-        "w": 24,
-        "h": 1
-      },
-      "panels": []
-    },
-    {
       "type": "timeseries",
-      "title": "Local vs Remote DRAM Bandwidth (stacked)",
+      "title": "Total Mem BW by Host",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -602,7 +614,7 @@
       "gridPos": {
         "x": 0,
         "y": 14,
-        "w": 24,
+        "w": 12,
         "h": 8
       },
       "targets": [
@@ -611,137 +623,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "amd_uprof_local_dram_read_data_bytes_gbps{instance=\"$instance\",scope=~\"$scope\"}",
+          "expr": "sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind=\"total\"})",
           "refId": "A",
-          "legendFormat": "{{scope}} local read"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "amd_uprof_local_dram_write_data_bytes_gbps{instance=\"$instance\",scope=~\"$scope\"}",
-          "refId": "B",
-          "legendFormat": "{{scope}} local write"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "amd_uprof_remote_dram_read_data_bytes_gbps{instance=\"$instance\",scope=~\"$scope\"}",
-          "refId": "C",
-          "legendFormat": "{{scope}} remote read"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "amd_uprof_remote_dram_write_data_bytes_gbps{instance=\"$instance\",scope=~\"$scope\"}",
-          "refId": "D",
-          "legendFormat": "{{scope}} remote write"
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "GBs",
           "decimals": 1,
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 25,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "normal",
-              "group": "A"
-            },
-            "axisCenteredZero": false,
-            "spanNulls": true
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "row",
-      "title": "Exporter health",
-      "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 22,
-        "w": 24,
-        "h": 1
-      },
-      "panels": []
-    },
-    {
-      "type": "timeseries",
-      "title": "Exporter Health",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "",
-      "gridPos": {
-        "x": 0,
-        "y": 23,
-        "w": 12,
-        "h": 6
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "max(amd_uprof_up{instance=\"$instance\"})",
-          "refId": "A",
-          "legendFormat": "up"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "max(amd_uprof_process_running{instance=\"$instance\"})",
-          "refId": "B",
-          "legendFormat": "process_running"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "decimals": 0,
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -785,17 +675,17 @@
     },
     {
       "type": "timeseries",
-      "title": "Snapshot Age (s)",
+      "title": "Remote DRAM BW by Host",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "",
+      "description": "High remote (cross-NUMA) traffic suggests NUMA-unfriendly placement.",
       "gridPos": {
         "x": 12,
-        "y": 23,
+        "y": 14,
         "w": 12,
-        "h": 6
+        "h": 8
       },
       "targets": [
         {
@@ -803,14 +693,93 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "max(amd_uprof_snapshot_age_seconds{instance=\"$instance\"})",
+          "expr": "sum by (instance) (amd_uprof_remote_dram_read_data_bytes_gbps) + sum by (instance) (amd_uprof_remote_dram_write_data_bytes_gbps)",
           "refId": "A",
-          "legendFormat": "age"
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "unit": "GBs",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisCenteredZero": false,
+            "spanNulls": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Read vs Write BW by Host",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind=\"read\"})",
+          "refId": "A",
+          "legendFormat": "{{instance}} read"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance) (amd_uprof_mem_bandwidth_gbps{kind=\"write\"})",
+          "refId": "B",
+          "legendFormat": "{{instance}} write"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "GBs",
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
@@ -875,50 +844,6 @@
         "options": [],
         "includeAll": false,
         "multi": false
-      },
-      {
-        "name": "instance",
-        "type": "query",
-        "label": "Host",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "query": {
-          "query": "label_values(amd_uprof_up, instance)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "sort": 1,
-        "current": {},
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "options": [],
-        "regex": "",
-        "allValue": null
-      },
-      {
-        "name": "scope",
-        "type": "query",
-        "label": "Scope",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "query": {
-          "query": "label_values(amd_uprof_mem_bandwidth_gbps{instance=\"$instance\"}, scope)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "sort": 1,
-        "current": {},
-        "hide": 0,
-        "includeAll": true,
-        "multi": true,
-        "options": [],
-        "regex": "",
-        "allValue": null
       }
     ]
   },
@@ -928,8 +853,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "AMD uProf - Host Memory Detail",
-  "uid": "amduprof-host-memory",
+  "title": "AMD uProf - Memory Cluster Overview",
+  "uid": "amduprof-cluster-overview",
   "version": 1,
   "weekStart": ""
 }
