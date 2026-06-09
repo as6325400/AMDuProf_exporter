@@ -1,0 +1,33 @@
+[Unit]
+Description=AMDuProfPcm memory-bandwidth Prometheus exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Assumes the repo is at /opt/AMDuProf_exporter with a venv at
+# /opt/AMDuProf_exporter/.venv (see README "Install"). Adjust paths if you keep
+# it elsewhere (and drop ProtectHome=true if running from /home).
+ExecStart=/opt/AMDuProf_exporter/.venv/bin/python /opt/AMDuProf_exporter/amduprof_exporter.py \
+    --port 9836 --addr 0.0.0.0 \
+    --amduprof-bin /opt/AMDuProf_5.3-518/bin/AMDuProfPcm \
+    --metric memory --interval 1000
+
+# --msr reads /dev/cpu/*/msr, which needs root + the msr kernel module.
+# (Module is usually autoloaded; uncomment if your kernel doesn't autoload it.)
+# ExecStartPre=-/sbin/modprobe msr
+Restart=on-failure
+RestartSec=5
+
+# AMDuProfPcm --msr requires raw MSR access, so run as root and do NOT enable
+# PrivateDevices (it would hide /dev/cpu/*/msr).
+User=root
+
+# Light hardening that does not break MSR / driver access.
+NoNewPrivileges=true
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
