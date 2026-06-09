@@ -40,7 +40,7 @@ jobs:
           python-version: "3.12"
       - name: Validate Grafana JSON
         run: |
-          for f in grafana/*.json; do
+          find grafana -name '*.json' | while read -r f; do
             echo "validating $f"
             python -m json.tool "$f" > /dev/null
           done
